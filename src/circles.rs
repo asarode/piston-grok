@@ -5,14 +5,14 @@ extern crate glutin_window;
 
 use self::opengl_graphics::{GlGraphics, OpenGL};
 use self::piston::input::*;
-use self::glutin_window::GlutinWindow as Window;
+use self::glutin_window::{GlutinWindow as Window, OpenGL as GlutinOpenGL};
 use self::piston::window::WindowSettings;
 use self::piston::event_loop::*;
 
 pub enum HoleVariant {
     Red,
     Green,
-    Yellow,
+    Blue,
 }
 
 pub struct Hole {
@@ -23,10 +23,33 @@ pub struct Hole {
 
 pub struct App {
     gl: GlGraphics,
-    holes: [Hole; 1],
+    holes: [Hole; 3],
 }
 
 impl App {
+    fn new(opengl: GlutinOpenGL) -> App {
+        App {
+            gl: GlGraphics::new(opengl),
+            holes: [
+                Hole {
+                    position: (0.0, 50.0),
+                    radius: 10.0,
+                    variant: HoleVariant::Red,
+                },
+                Hole {
+                    position: (21.0, -21.0),
+                    radius: 10.0,
+                    variant: HoleVariant::Blue,
+                },
+                Hole {
+                    position: (-21.0, 21.0),
+                    radius: 10.0,
+                    variant: HoleVariant::Green,
+                },
+            ],
+        }
+    }
+
     fn render(&mut self, args: &RenderArgs) {
         use self::graphics::*;
 
@@ -36,14 +59,23 @@ impl App {
         const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
         let (x, y) = ((args.width / 2) as f64, (args.height / 2) as f64);
-        let (circle_x, circle_y) = self.holes[0].position;
-
+        let ref holes = self.holes;
         self.gl.draw(args.viewport(), |c, gl| {
             clear(WHITE, gl);
-            let circle = ellipse::circle(25.0, 25.0, 10.0);
-            let transform = c.transform.trans(x, y).trans(circle_x, circle_y);
 
-            ellipse(RED, circle, transform, gl);
+            for hole in holes.iter() {
+                let (circle_x, circle_y) = hole.position;
+                let circle = ellipse::circle(circle_x, circle_y, hole.radius);
+                let transform = c.transform.trans(x, y);
+                let color = match hole.variant {
+                    HoleVariant::Red => RED,
+                    HoleVariant::Green => GREEN,
+                    HoleVariant::Blue => BLUE,
+                };
+
+                ellipse(color, circle, transform, gl);
+
+            }
         });
     }
 }
@@ -57,16 +89,7 @@ pub fn start() {
         .build()
         .unwrap();
 
-    let mut app = App {
-        gl: GlGraphics::new(opengl),
-        holes: [
-            Hole {
-                position: (0.0, 0.0),
-                radius: 2.0,
-                variant: HoleVariant::Red,
-            },
-        ],
-    };
+    let mut app = App::new(opengl);
 
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
