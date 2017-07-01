@@ -28,22 +28,24 @@ pub struct App {
 
 impl App {
     fn new(opengl: GlutinOpenGL) -> App {
+        let HOLE_SEPARATION = 200.0;
+        let HOLE_SIZE = 70.0;
         App {
             gl: GlGraphics::new(opengl),
             holes: [
                 Hole {
-                    position: (0.0, 50.0),
-                    radius: 10.0,
+                    position: (0.0, HOLE_SEPARATION),
+                    radius: HOLE_SIZE,
                     variant: HoleVariant::Red,
                 },
                 Hole {
-                    position: (21.0, -21.0),
-                    radius: 10.0,
+                    position: (0.87 * HOLE_SEPARATION, -0.5 * HOLE_SEPARATION),
+                    radius: HOLE_SIZE,
                     variant: HoleVariant::Blue,
                 },
                 Hole {
-                    position: (-21.0, 21.0),
-                    radius: 10.0,
+                    position: (-0.87 * HOLE_SEPARATION, -0.5 * HOLE_SEPARATION),
+                    radius: HOLE_SIZE,
                     variant: HoleVariant::Green,
                 },
             ],
@@ -83,7 +85,7 @@ impl App {
 pub fn start() {
     let opengl = OpenGL::V3_2;
 
-    let mut window: Window = WindowSettings::new("circles", [200, 200])
+    let mut window: Window = WindowSettings::new("circles", [800, 800])
         .opengl(opengl)
         .exit_on_esc(true)
         .build()
