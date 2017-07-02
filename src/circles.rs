@@ -93,6 +93,10 @@ impl App {
             }
         });
     }
+
+    fn update(&mut self, args: &UpdateArgs) {
+        ()
+    }
 }
 
 fn color_from_variant(variant: &HoleVariant) -> [f32; 4] {
@@ -117,8 +121,21 @@ pub fn start() {
 
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
-        if let Some(r) = e.render_args() {
-            app.render(&r);
+        match e {
+            Input::Update(u) => {
+                app.update(&u);
+            }
+            Input::Render(r) => {
+                app.render(&r);
+            }
+            Input::Release(button) => {
+                match button {
+                    _ => {
+                        println!("Button released");
+                    }
+                }
+            }
+            _ => {}
         }
     }
 }
